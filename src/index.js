@@ -4,21 +4,27 @@ const { getContextoGameId } = require('./getGameId.js');
 
 const LANGUAGE = 'en';
 
-let GAME = []
-let GUESS = ""
+let GAME = [];
+let entries = new Map();
+let GUESS = "";
+let filledGuess = "";
+let DISTANCE = "3";
+let RANK = null;
+
+const IGNORED_KEYS = [ 'tab', 'backspace']
 async function main() {
     try {
-        // console.log("Getting today's game ID...");
-        
         const GAME_ID = await getContextoGameId();
         
         if (!GAME_ID) {
             console.error('Failed to get game ID');
             process.exit(1);
         }
-        GAME.push(`\n \t╔════( Welcome to Contexto CLI. Game ID: ${GAME_ID} )════╗`);
+        GAME.push(`\n\tStarting game...`);
+        GAME[0] = `\n \t╔════( Welcome to Contexto CLI. Game ID: ${GAME_ID} )════╗`;
         GAME.push(`\t║¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯║`);
         GAME.push(`\t║          |                            |           ║`)
+        GAME.push(`\t║          |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|           ║`)
 
         const api = GameApi(LANGUAGE, GAME_ID.replace('#', ''));
         readline.emitKeypressEvents(process.stdin);
@@ -30,75 +36,49 @@ async function main() {
         });
         drawTable();
 
-        // console.log('Commands: :quit\n');
+        async function playWord(word) {
+                try {
+                    const res = await api.play(word);
 
-        // const ask = () => {
-        //     rl.question('\t║                                                   ║', async (input) => {
-        //         const word = input.trim().toLowerCase();
+                    if (res.rank === 1) {
+                        console.log('\nYOU WIN!');
+                        console.log(`The word was: ${word}`);
+                        console.log(`Guesses: ${res.rank}`);
+                        rl.close();
+                    } else {
+                        DISTANCE = res.distance;
+                        RANK = res.rank;
+                        
+                        let maxEntryWidth = 27; 
+                        let fill = maxEntryWidth - (word.length + DISTANCE.toString().length + 1);
+               
+                        entries.set(Number(DISTANCE), `\t║          | ${word}${" ".repeat(fill)}${DISTANCE.toString()} |           ║`);
+                        drawTable(true);
+                    }
+                } catch (error) {
+                    console.log('Invalid word or request failed sldkngg');
+                }
+        }
 
-        //         if (!word) {
-        //             ask();
-        //             return;
-        //         }
-
-        //         if (word === ':quit') {
-        //             const res = await api.giveUp();
-        //             console.log('\nYou gave up!');
-        //             console.log(`The word was: ${res.word}`);
-        //             rl.close();
-        //             return;
-        //         }
-
-        //         if (word === ':help') {
-        //             console.log('\n📚 Available commands:');
-        //             console.log(':quit - Give up and reveal the word');
-        //             console.log(':help - Show this help\n');
-        //             ask();
-        //             return;
-        //         }
-
-        //         try {
-        //             const res = await api.play(word);
-
-        //             if (res.rank === 1) {
-        //                 console.log('\nYOU WIN!');
-        //                 console.log(`The word was: ${word}`);
-        //                 console.log(`Guesses: ${res.rank}`);
-        //                 rl.close();
-        //             } else {
-        //                 console.log(`📊 Rank: ${res.rank ?? '??'} | Distance: ${res.distance ?? '??'}`);
-        //                 ask();
-        //             }
-        //         } catch (error) {
-        //             console.log('❌ Invalid word or request failed');
-        //             ask();
-        //         }
-        //     });
-        // };
-
-        // ask();
         process.stdin.on('keypress', (str, key) => {
-        // console.log('Pressed:', key.name);
-            let maxLength = 29
-            GUESS+=key.name
-
-            let filledGuess = GUESS
-
-            if(filledGuess.length >= maxLength)  {
-                drawTable();
-                return;
-            }
-            for ( i=0; i<(maxLength - GUESS.length); i++) {
-                filledGuess+=" "
+            if (key.name === 'return') {
+                    playWord(GUESS)
+                    GUESS="";
+                    return;
+            } else if ( key.name === 'backspace') {
+                GUESS = GUESS.slice(0, -1);
+            } else if (key.name.length == 1 && /^[a-zA-Z]$/.test(key.name)) {
+                GUESS += key.name;
             }
 
-            GAME[2] = `\t║          | ${filledGuess}|         ║`
-            // console.log(GUESS)
-            drawTable();
+            let maxLength = 27;
+            if(GUESS.length > maxLength) GUESS = GUESS.slice(0, maxLength);
             
-
-        if (key.ctrl && key.name === 'c') process.exit();
+            filledGuess = GUESS.padEnd(maxLength, " ");
+            GAME[2] = `\t║          | ${filledGuess}|           ║`;
+            drawTable();
         });
+
         rl.on('close', () => {
             console.log('\n bye ');
             process.exit(0);
@@ -110,10 +90,19 @@ async function main() {
     }
 }
 
-function drawTable() {
+function drawTable(playedWord) {
     console.clear();
+
     GAME.forEach(line => {
         console.log(line)
     });
+
+    const sortedEntries = [...entries.entries()].sort((a, b) => a[0] - b[0]);
+    
+    sortedEntries.forEach(([key, value]) => {
+        console.log(value);
+    });
+    
+    console.log(`\t╚═══════════════════════════════════════════════════╝`)
 }
 main();
