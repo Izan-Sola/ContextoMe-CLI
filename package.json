@@ -1,0 +1,41 @@
+{
+  "name": "contextometerminal",
+  "version": "1.0.0",
+  "description": "Contexto game in terminal",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "bin": {
+    "contexto": "./bin/contexto"
+  },
+  "scripts": {
+    "start": "node ./bin/contexto",
+    "build": "npx pkg . --out-path dist/",
+    "build:win": "npx pkg . --target node18-win-x64 --out-path dist/",
+    "build:linux": "npx pkg . --target node18-linux-x64 --out-path dist/",
+    "build:mac": "npx pkg . --target node18-macos-x64 --out-path dist/",
+    "build:all": "npx pkg . --targets node18-win-x64,node18-linux-x64,node18-macos-x64 --out-path dist/"
+  },
+  "keywords": [
+    "contexto",
+    "game",
+    "cli"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.7.0",
+    "prompt-sync": "^4.2.0",
+    "puppeteer": "^24.3.0"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "assets": [
+      "node_modules/puppeteer/.local-chromium/**/*"
+    ],
+    "scripts": [
+      "src/**/*.js"
+    ]
+  }
+}
