@@ -35,15 +35,6 @@ async function getContextoGameId() {
             if (spans.length >= 2) {
                 return spans[1].textContent.trim();
             }
-            
-            // Fallback: look for game ID in the page
-            const scripts = Array.from(document.querySelectorAll('script'));
-            for (const script of scripts) {
-                const text = script.textContent;
-                const match = text.match(/game[Ii]d["']?\s*[:=]\s*["']?(\d+)["']?/);
-                if (match) return match[1];
-            }
-            
             return null;
         });
         

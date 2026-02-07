@@ -59,22 +59,23 @@ async function main() {
                         console.log(`Guesses: ${res.rank}`);
                         rl.close();
                     } else {
-                        DISTANCE = res.distance;
+                        
+                        if ( res.distance < DISTANCE ) DISTANCE = res.distance;
                         
                         if ( DISTANCE == 0 ) {
                                 winScreen(); return;
                         } 
 
                         let maxEntryWidth = 27; 
-                        let fill = maxEntryWidth - (word.length + DISTANCE.toString().length + 1);
+                        let fill = maxEntryWidth - (word.length + res.distance.toString().length + 1);
 
                         let bg = "";
           
-                        if ( DISTANCE > 0 && DISTANCE < 500 )  bg = colors.bg_light_blue
-                        else if ( DISTANCE > 500 && DISTANCE < 1000 ) bg = colors.bg_light_yellow;
-                        else if ( DISTANCE > 1000) bg = colors.bg_light_red; 
+                        if ( res.distance > 0 && res.distance < 500 )  bg = colors.bg_light_blue
+                        else if ( res.distance > 500 && res.distance < 1000 ) bg = colors.bg_light_yellow;
+                        else if ( res.distance > 1000) bg = colors.bg_light_red; 
                         
-                        entries.set(Number(DISTANCE), `\t║          |${bg}${colors.black} ${word}${" ".repeat(fill)}${DISTANCE.toString()} ${colors.reset}${colors.bold}|           ║`);
+                        entries.set(Number(res.distance), `\t║          |${bg}${colors.black} ${word}${" ".repeat(fill)}${res.distance.toString()} ${colors.reset}${colors.bold}|           ║`);
                         drawTable();
                     }
                 } catch (error) {
@@ -83,7 +84,6 @@ async function main() {
         }
 
         async function getHint() {
-
             try {
                     DIST = Math.round(DISTANCE/2)
 
@@ -94,17 +94,31 @@ async function main() {
                     playWord(GUESS)
                     
             } catch (error) {
-                    console.log('Invalid word or request failed sldkngg');
+                    console.log('Invalid word or request failed :(', error);
             }
-
         }
-        
+
+        async function giveUp() {
+            try {
+                    const res = await api.giveUp();
+
+                    console.clear()
+                    console.log(`${colors.bold}\t╔════════════════════════════╗`)
+                    console.log(`\t   You gave up! The word was: `)
+                    console.log(`\t\t   ${res.word.toUpperCase()} `)
+                    console.log(`\t╚════════════════════════════╝`)
+
+            } catch (error) {
+                
+            }
+        }
+
         process.stdin.on('keypress', (str, key) => {
 
             if (key.name === 'return') {
 
                     switch (GUESS) {
-                        case ":quit": readline.close(); break;
+                        case ":quit": rl.close(); break;
                         case ":giveup": giveUp(); break;
                         case ":hint": getHint(); break;
                         default: playWord(GUESS);
