@@ -4,14 +4,27 @@ const { getContextoGameId } = require('./getGameId.js');
 
 const LANGUAGE = 'en';
 
-let GAME = [];
+let header = [];
 let entries = new Map();
 let GUESS = "";
+let lastGuess = "";
 let filledGuess = "";
-let DISTANCE = "3";
+let DISTANCE = "100000";
 let RANK = null;
 
-const IGNORED_KEYS = [ 'tab', 'backspace']
+const colors = {
+
+        reset: "\x1b[0m",
+        bold: "\x1b[1m",
+        light_red: "\x1b[38;5;204m",
+        bg_light_red: "\x1b[48;5;204m",
+        bg_light_yellow: "\x1b[48;5;214m",
+        bg_light_blue: "\x1b[48;5;110m",
+        black : "\x1b[38;5;232m",
+        bold: "\x1b[1m",
+        reset: "\x1b[0m"
+}
+
 async function main() {
     try {
         const GAME_ID = await getContextoGameId();
@@ -20,11 +33,11 @@ async function main() {
             console.error('Failed to get game ID');
             process.exit(1);
         }
-        GAME.push(`\n\tStarting game...`);
-        GAME[0] = `\n \t╔════( Welcome to Contexto CLI. Game ID: ${GAME_ID} )════╗`;
-        GAME.push(`\t║¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯║`);
-        GAME.push(`\t║          |                            |           ║`)
-        GAME.push(`\t║          |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|           ║`)
+        header.push(`\n\tStarting game...`);
+     header[0] = `\n \t${colors.bold}╔════( Welcome to Contexto CLI. Game ID: ${GAME_ID} )════╗`;
+        header.push(`\t║¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯║`);
+        header.push(`\t║          |                            |           ║`)
+        header.push(`\t║          |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|           ║`)
 
         const api = GameApi(LANGUAGE, GAME_ID.replace('#', ''));
         readline.emitKeypressEvents(process.stdin);
@@ -47,35 +60,69 @@ async function main() {
                         rl.close();
                     } else {
                         DISTANCE = res.distance;
-                        RANK = res.rank;
                         
+                        if ( DISTANCE == 0 ) {
+                                winScreen(); return;
+                        } 
+
                         let maxEntryWidth = 27; 
                         let fill = maxEntryWidth - (word.length + DISTANCE.toString().length + 1);
-               
-                        entries.set(Number(DISTANCE), `\t║          | ${word}${" ".repeat(fill)}${DISTANCE.toString()} |           ║`);
-                        drawTable(true);
+
+                        let bg = "";
+          
+                        if ( DISTANCE > 0 && DISTANCE < 500 )  bg = colors.bg_light_blue
+                        else if ( DISTANCE > 500 && DISTANCE < 1000 ) bg = colors.bg_light_yellow;
+                        else if ( DISTANCE > 1000) bg = colors.bg_light_red; 
+                        
+                        entries.set(Number(DISTANCE), `\t║          |${bg}${colors.black} ${word}${" ".repeat(fill)}${DISTANCE.toString()} ${colors.reset}${colors.bold}|           ║`);
+                        drawTable();
                     }
                 } catch (error) {
-                    console.log('Invalid word or request failed sldkngg');
+                    console.log('Invalid word or request failed sldkngg', error);
                 }
         }
 
-        process.stdin.on('keypress', (str, key) => {
-            if (key.name === 'return') {
+        async function getHint() {
+
+            try {
+                    DIST = Math.round(DISTANCE/2)
+
+                    const res = await api.tip(DIST);
+                    DISTANCE = res.distance;
+                    GUESS = res.word;
+                 
                     playWord(GUESS)
-                    GUESS="";
-                    return;
-            } else if ( key.name === 'backspace') {
-                GUESS = GUESS.slice(0, -1);
-            } else if (key.name.length == 1 && /^[a-zA-Z]$/.test(key.name)) {
-                GUESS += key.name;
+                    
+            } catch (error) {
+                    console.log('Invalid word or request failed sldkngg');
             }
 
+        }
+        
+        process.stdin.on('keypress', (str, key) => {
+
+            if (key.name === 'return') {
+
+                    switch (GUESS) {
+                        case ":quit": readline.close(); break;
+                        case ":giveup": giveUp(); break;
+                        case ":hint": getHint(); break;
+                        default: playWord(GUESS);
+                    }       
+                    GUESS="";
+                    return;
+
+            } else if ( key.name === 'backspace') {
+                GUESS = GUESS.slice(0, -1);
+            } else if ( key.name != undefined && key.name.length == 1 && /^[a-zA-Z:]$/.test(key.name) || key.sequence == ':') {
+                GUESS += ( key.name == undefined ) ? key.sequence : key.name ;
+            }
+            
             let maxLength = 27;
             if(GUESS.length > maxLength) GUESS = GUESS.slice(0, maxLength);
             
             filledGuess = GUESS.padEnd(maxLength, " ");
-            GAME[2] = `\t║          | ${filledGuess}|           ║`;
+            header[2] = `\t║          | ${colors.bold}${filledGuess}|           ║`;
             drawTable();
         });
 
@@ -90,10 +137,11 @@ async function main() {
     }
 }
 
-function drawTable(playedWord) {
+function drawTable() {
+    
     console.clear();
 
-    GAME.forEach(line => {
+    header.forEach(line => {
         console.log(line)
     });
 
@@ -104,5 +152,12 @@ function drawTable(playedWord) {
     });
     
     console.log(`\t╚═══════════════════════════════════════════════════╝`)
+    console.log(`\tCommands -> :quit, :giveup, :hint, :settings`)
 }
 main();
+
+function winScreen() {
+    console.clear()
+    console.log("winwniwnwnwiwnwnwinw")
+
+}

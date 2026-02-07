@@ -10,8 +10,13 @@ const GameApi = (language, gameId) => {
     };
 
     const tip = async (distance) => {
-        const response = await fetch(`${baseUrl}/${language}/tip/${gameId}/${distance}`);
-        if (!response.ok) throw new Error('Request failed');
+        let response = await fetch(`${baseUrl}/${language}/tip/${gameId}/${distance}`);
+        // if (!response.ok) throw new Error('Request failed');
+
+        while ( !response.ok ) {
+                response = await fetch(`${baseUrl}/${language}/tip/${gameId}/${distance/2}`);
+        }
+
         return response.json();
     };
 
