@@ -4,3 +4,7 @@ TODO:
   - Add settings for language
   - Add option to play past games
   - Add more games
+
+Preview:
+
+<img width="567" height="271" alt="image" src="https://github.com/user-attachments/assets/414167cb-ba39-4aa1-83cf-bd913e425bd6" />
