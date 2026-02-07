@@ -2,7 +2,7 @@ WIP, Depends if I feel motivated to work on this.
 
 TODO:
   - Add proper win screen
-  - ~~Add settings for language~~ DONE
+  - ~~Add settings for language~~ DONE (portuguese doesnt work idk why, endpoint gives error)
   - Make a proper linux version
   - Add option to play past games
   - Add more games
