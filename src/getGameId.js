@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 
-async function getContextoGameId() {
+async function getContextoGameId(language) {
     const browser = await puppeteer.launch({
         headless: 'new',  // Use new headless mode
         args: [
@@ -13,7 +13,7 @@ async function getContextoGameId() {
     const page = await browser.newPage();
     
     try {
-        await page.goto('https://contexto.me/', {
+        await page.goto(`https://contexto.me/${language}`, {
             waitUntil: 'domcontentloaded',
             timeout: 30000
         });
