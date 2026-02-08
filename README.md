@@ -8,5 +8,6 @@ TODO:
   - Add more games
 
 Preview:
+<img width="455" height="293" alt="image" src="https://github.com/user-attachments/assets/c3667f55-c61c-422f-960b-ad333f30b019" />
 
 <img width="567" height="271" alt="image" src="https://github.com/user-attachments/assets/414167cb-ba39-4aa1-83cf-bd913e425bd6" />
