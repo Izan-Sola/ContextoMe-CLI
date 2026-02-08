@@ -1,7 +1,7 @@
 WIP, Depends if I feel motivated to work on this.
 
 TODO:
-  - Add proper win screen
+  -  ~~Add proper win screen~~ DONE 
   - ~~Add settings for language~~ DONE (portuguese doesnt work idk why, endpoint gives error)
   - Make a proper linux version
   - Make win version
