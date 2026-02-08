@@ -4,7 +4,7 @@ TODO:
   - Add proper win screen
   - ~~Add settings for language~~ DONE (portuguese doesnt work idk why, endpoint gives error)
   - Make a proper linux version
-  - Add option to play past games
+  - ~~Add option to play past games~~ DONE
   - Add more games
 
 Preview:
