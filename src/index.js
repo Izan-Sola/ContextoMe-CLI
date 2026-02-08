@@ -19,10 +19,11 @@ let entries = new Map()
 let GUESS = ""
 let lastGuess = ""
 let filledGuess = ""
+let totalGuesses = 0
+let totalHints = 0
 let DISTANCE = "100000"
 let RANK = null
 let GAME_ID = ""
-let playing = false;
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -30,7 +31,6 @@ const rl = readline.createInterface({
 })
 
 const colors = {
-
     reset: "\x1b[0m",
     bold: "\x1b[1m",
     light_red: "\x1b[38;5;204m",
@@ -45,6 +45,8 @@ const colors = {
 
 async function mainContexto() {
     try {
+        totalGuesses = 0
+        totalHints = 0
         if (process.stdin.isTTY) process.stdin.setRawMode(true)
         if (!GAME_ID) {
             console.error('Failed to get game ID')
@@ -58,29 +60,21 @@ async function mainContexto() {
         header.push(`\t║          |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|           ║`)
 
         const api = GameApi(LANGUAGE, GAME_ID)
-
-
-
-
         drawContextoBoard()
 
         async function playWord(word) {
             try {
                 const res = await api.play(word)
 
-                if (res.rank === 1) {
-                    console.log('\nYOU WIN!')
-                    console.log(`The word was: ${word}`)
-                    console.log(`Guesses: ${res.rank}`)
-                    rl.close()
-                } else {
-
                     if (res.distance < DISTANCE) DISTANCE = res.distance
 
-                    if (DISTANCE == 0) {
+                    if (DISTANCE == 0) {                    
+                        process.stdin.removeAllListeners('keypress'); 
                         winScreen()
                         return
                     }
+
+                    totalGuesses += 1
 
                     let maxEntryWidth = 27
                     let fill = maxEntryWidth - (word.length + res.distance.toString().length + 1)
@@ -93,7 +87,7 @@ async function mainContexto() {
 
                     entries.set(Number(res.distance), `\t║          |${bg}${colors.black} ${word}${" ".repeat(fill)}${res.distance.toString()} ${colors.reset}${colors.bold}|           ║`)
                     drawContextoBoard()
-                }
+                
             } catch (error) {
                 console.log('Invalid word or request failed sldkngg', error)
             }
@@ -101,8 +95,8 @@ async function mainContexto() {
 
         async function getHint() {
             try {
+                totalHints += 1
                 DIST = Math.round(DISTANCE / 2)
-
                 const res = await api.tip(DIST)
                 DISTANCE = res.distance
                 GUESS = res.word
@@ -125,7 +119,7 @@ async function mainContexto() {
                 console.log(`\t╚════════════════════════════╝`)
 
             } catch (error) {
-
+                console.log("Error giving up", error)
             }
         }
 
@@ -185,13 +179,6 @@ function drawContextoBoard() {
     console.log(`\t╚═══════════════════════════════════════════════════╝`)
     console.log(`\t    Commands -> :quit, :giveup, :hint, :settings`)
 }
-// mainContexto() 
-
-function winScreen() {
-    console.clear()
-    console.log("winwniwnwnwiwnwnwinw")
-}
-
 
 async function start() {
     GAME_ID = await getContextoGameId(LANGUAGE)
@@ -293,4 +280,32 @@ function drawOptions() {
     
 }
 
+let p = [ "▓▓", "░░", "▒▒"]
+
+let topLine = ""
+let bottomLine = ""
+function winScreen() {
+
+    console.clear()
+    for(i=0; i<15; i++) topLine+=r()
+    for(i=0; i<15; i++) bottomLine+=r()
+    console.log(`\t${colors.bold}`)
+    console.log(`      ╔════════════════════════════════╗`)
+    console.log(`      ║ ${topLine} ║`)               
+    console.log(`      ║ ${r()}                          ${r()} ║`)
+    console.log(`      ║ ${r()}   You guessed the word!  ${r()} ║`)
+    console.log(`      ║ ${r()}   ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯  ${r()} ║`)
+    console.log(`      ║ ${r()}   Total guesses: ${totalGuesses}      ${r()} ║`)
+    console.log(`      ║ ${r()}   Total hints used: ${totalHints}    ${r()} ║`)
+    console.log(`      ║ ${r()}                          ${r()} ║`)
+    console.log(`      ║ ${bottomLine} ║`)
+    console.log(`      ╚════════════════════════════════╝`)
+    topLine = ""
+    bottomLine = ""
+    setTimeout( () => winScreen(), 200)
+}
+function r() {
+    return p[Math.floor(Math.random() * 3)]
+}
+//winScreen()
 start()

@@ -1,42 +1,44 @@
 {
-  "name": "contextometerminal",
+  "name": "contexto-cli",
   "version": "1.0.0",
-  "description": "Contexto game in terminal",
-  "main": "src/index.js",
-  "type": "commonjs",
+  "description": "Contexto game CLI for Windows and Unix systems",
+  "main": "contexto-cli.js",
   "bin": {
-    "contexto": "./bin/contexto"
+    "contexto": "./contexto-cli.js"
   },
   "scripts": {
-    "start": "node ./bin/contexto",
-    "build": "npx pkg . --out-path dist/",
-    "build:win": "npx pkg . --target node18-win-x64 --out-path dist/",
-    "build:linux": "npx pkg . --target node18-linux-x64 --out-path dist/",
-    "build:mac": "npx pkg . --target node18-macos-x64 --out-path dist/",
-    "build:all": "npx pkg . --targets node18-win-x64,node18-linux-x64,node18-macos-x64 --out-path dist/"
+    "start": "node contexto-cli.js",
+    "build": "pkg . --compress GZip",
+    "build:win": "pkg . --targets node18-win-x64 --compress GZip",
+    "build:linux": "pkg . --targets node18-linux-x64 --compress GZip",
+    "build:mac": "pkg . --targets node18-macos-x64 --compress GZip",
+    "build:all": "pkg . --targets node18-win-x64,node18-linux-x64,node18-macos-x64 --compress GZip"
   },
-  "keywords": [
-    "contexto",
-    "game",
-    "cli"
-  ],
-  "author": "",
-  "license": "ISC",
+  "pkg": {
+    "targets": [
+      "node18-win-x64",
+      "node18-linux-x64",
+      "node18-macos-x64"
+    ],
+    "outputPath": "dist",
+    "scripts": [
+      "contextoAPI.js",
+      "getGameId.js"
+    ]
+  },
   "dependencies": {
-    "chalk": "^5.6.2",
-    "node-fetch": "^2.7.0",
-    "prompt-sync": "^4.2.0",
-    "puppeteer": "^24.3.0"
+    "keypress": "^0.2.1",
+    "puppeteer": "^24.37.2"
   },
   "devDependencies": {
     "pkg": "^5.8.1"
   },
-  "pkg": {
-    "assets": [
-      "node_modules/puppeteer/.local-chromium/**/*"
-    ],
-    "scripts": [
-      "src/**/*.js"
-    ]
-  }
+  "keywords": [
+    "contexto",
+    "game",
+    "cli",
+    "word-game"
+  ],
+  "author": "",
+  "license": "MIT"
 }
