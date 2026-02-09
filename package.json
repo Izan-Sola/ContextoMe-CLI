@@ -2,9 +2,9 @@
   "name": "contexto-cli",
   "version": "1.0.0",
   "description": "Contexto game CLI for Windows and Unix systems",
-  "main": "contexto-cli.js",
+  "main": "index.js",
   "bin": {
-    "contexto": "./contexto-cli.js"
+    "contexto": "./bin/contexto"
   },
   "scripts": {
     "start": "node contexto-cli.js",
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "keypress": "^0.2.1",
-    "puppeteer": "^24.37.2"
+    "puppeteer-core": "^24.37.2"
   },
   "devDependencies": {
     "pkg": "^5.8.1"
