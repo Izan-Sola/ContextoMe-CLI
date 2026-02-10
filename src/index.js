@@ -279,7 +279,7 @@ function drawOptions() {
     console.log(gameIdOptRow)
     console.log(`\t ╚══════════════════════════════╝ ${colors.reset}`)
     console.log(`\n\t      Keys: Move, Enter: Play `) //
-    console.log(`     ID also varies with language, wait for it!`)
+    console.log(` Play today's game or set you ID by selecting Custom`)
     console.log(`   ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`)
     
 }
