@@ -11,7 +11,7 @@ let availableGames = ["Contexto"]
 let gameOpt = 0
 let currentSetting = 0
 
-let ids = [ null, "Custom"]
+let ids = [ null, null, null, "Custom"]
 idOpt = 0
 
 let header = []
@@ -48,10 +48,10 @@ async function mainContexto() {
         totalGuesses = 0
         totalHints = 0
         if (process.stdin.isTTY) process.stdin.setRawMode(true)
-        if (!GAME_ID) {
-            console.error('Failed to get game ID')
-            process.exit(1)
-        }
+        // if (!GAME_ID) {
+        //     console.error('Failed to get game ID')
+        //     process.exit(1)
+        // }
         GAME_ID = GAME_ID.replace('#', '')
         header.push(`\n\tStarting game...`)
         header[0] = `\n \t${colors.bold}╔════( Welcome to Contexto CLI. Game ID: #${GAME_ID} )════╗`
@@ -181,13 +181,16 @@ function drawContextoBoard() {
 }
 
 async function start() {
-    GAME_ID = await getContextoGameId(LANGUAGE)
-    ids[0] = GAME_ID
-    console.log(GAME_ID)
+    
+    ids[0] = await getContextoGameId("en")
+    ids[1] = await getContextoGameId("es")
+    ids[2] = await getContextoGameId("pt")
+    GAME_ID = ids[languageOpt]
+    
     console.clear()
 
     gameIdOptRow = `\t ║    Game ID -> ${(currentSetting == 1) ? colors.bg_white : ""
-        } ${GAME_ID} ${colors.reset}${colors.bold}  `
+        } ${ids[languageOpt]} ${colors.reset}${colors.bold}  `
 
 
     drawOptions()
@@ -199,11 +202,11 @@ async function start() {
                         if (languageOpt < languageList.length - 1) languageOpt++
                         else languageOpt = 0
                         LANGUAGE = languages[languageOpt]
-                        GAME_ID = await getContextoGameId(LANGUAGE)
+                        GAME_ID = ids[languageOpt]
                     }
                     else if (currentSetting == 2) {
-                        if (idOpt < ids.length - 1) idOpt++
-                        else idOpt = 0
+                        if (idOpt == languageOpt) idOpt = 3  
+                        else idOpt = languageOpt                      
                     }
                     break
                 }
@@ -212,11 +215,12 @@ async function start() {
                         if (languageOpt > 0) languageOpt--
                         else languageOpt = languageList.length - 1
                         LANGUAGE = languages[languageOpt]
-                        GAME_ID = await getContextoGameId(LANGUAGE)
+                        GAME_ID = ids[languageOpt]
                     }
                     else if (currentSetting == 2) {
-                        if (idOpt > 0) idOpt--
-                        else idOpt = idOpt.length - 1
+                        if (idOpt == languageOpt) idOpt = 3  
+                        else idOpt = languageOpt  
+                        
                     }
                     break
                 }
@@ -245,7 +249,7 @@ async function start() {
                 }
             }
             gameIdOptRow = `\t ║    Game ID -> ${(currentSetting == 2) ? colors.bg_white : ""
-                } ${ idOpt == 0 ? GAME_ID : "Custom" } ${colors.reset}${colors.bold}  `
+                } ${ idOpt < 3 ? ids[languageOpt] : "Custom" } ${colors.reset}${colors.bold}  `
             drawOptions()
         })
 }
@@ -287,8 +291,12 @@ let bottomLine = ""
 function winScreen() {
 
     console.clear()
-    for(i=0; i<15; i++) topLine+=r()
-    for(i=0; i<15; i++) bottomLine+=r()
+
+    for(i=0; i<15; i++) {
+        topLine+=r()
+        bottomLine+=r()
+    }
+
     console.log(`\t${colors.bold}`)
     console.log(`      ╔════════════════════════════════╗`)
     console.log(`      ║ ${topLine} ║`)               
