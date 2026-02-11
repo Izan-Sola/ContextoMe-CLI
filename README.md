@@ -5,6 +5,7 @@ TODO:
   - ~~Add settings for language~~ DONE (portuguese doesnt work idk why, endpoint gives error)
   - Make a proper linux version
   - Make win version
+  - Limit amound of words shown at once, allow scroll
   - ~~Add option to play past games~~ DONE
 
 
