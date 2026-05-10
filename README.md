@@ -1,5 +1,5 @@
 WIP, Depends if I feel motivated to work on this.
-
+THE WEB GOT UPDATED NOW I GOTTA FIX IT.
 TODO:
   -  ~~Add proper win screen~~ DONE 
   - ~~Add settings for language~~ DONE (portuguese doesnt work idk why, endpoint gives error)
