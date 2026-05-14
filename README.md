@@ -1,5 +1,5 @@
 WIP, Depends if I feel motivated to work on this.
-
+# DOES NOT WORK ANYMORE FOR WHATEVER REASON API MIGHT BE BLOCKED OR SOMETHING
 TODO:
   -  ~~Add proper win screen~~ DONE 
   - ~~Add settings for language~~ DONE (portuguese doesnt work idk why, endpoint gives error)
